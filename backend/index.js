@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js'; 
 import productRoutes from './routes/productRoutes.js'
 import connectDB from './config/db.js';
-import Product  from './models/Product.js';
 
 dotenv.config();
 
@@ -18,7 +17,7 @@ connectDB();
 const PORT = process.env.PORT || 5000;
 
 app.use('/api/user', userRoutes);
-app.use('/api/admin/products', productRoutes);
+app.use('/api/admin', productRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');

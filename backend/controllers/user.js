@@ -42,7 +42,7 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
       otp,
       otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
-      isVerify: false,
+      isVerify: True,
     });
 
     // Send OTP via email
