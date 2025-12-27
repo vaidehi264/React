@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion"; // Added import
+import { getAllProducts } from "../services/productServices";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -9,14 +12,8 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/admin/all");
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch products");
-        }
-
-        const data = await res.json();
-        setProducts(data.products || data);
+        const res = await getAllProducts(); // Use service
+        setProducts(res.data);
       } catch (err) {
         console.error(err);
         setError("Unable to load products. Please try again later.");
@@ -27,6 +24,22 @@ const Products = () => {
 
     fetchProducts();
   }, []);
+
+  // Animation Variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -61,55 +74,75 @@ const Products = () => {
 
         {/* PRODUCTS */}
         {!loading && !error && products.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10"
+          >
             {products.map((product) => (
-              <div
+              <motion.div
                 key={product._id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition overflow-hidden group"
+                variants={itemVariants}
+                whileHover={{ y: -5 }}
+                className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all overflow-hidden group relative flex flex-col h-full"
               >
-                {/* IMAGE */}
-                <div className="relative h-60 overflow-hidden">
-                  <img
-                    src={
-                      product.image ||
-                      "https://via.placeholder.com/400"
-                    }
-                    alt={product.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-                  />
+                <Link to={`/product/${product._id}`} className="block flex-1">
+                  {/* IMAGE */}
+                  <div className="relative h-64 overflow-hidden bg-white p-6 flex items-center justify-center border-b border-gray-100">
+                    <motion.img
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.3 }}
+                      src={
+                        product.image ||
+                        "https://via.placeholder.com/400"
+                      }
+                      alt={product.title}
+                      className="w-full h-full object-contain"
+                    />
 
-                  <span className="absolute top-4 left-4 bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
-                    {product.genre || "Electronics"}
-                  </span>
-                </div>
-
-                {/* DETAILS */}
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">
-                    {product.title}
-                  </h3>
-
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-4">
-                    {product.description}
-                  </p>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-extrabold text-gray-900">
-                      ₹{product.price}
+                    <span className="absolute top-4 left-4 bg-blue-600/90 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold shadow-sm">
+                      {product.genre || "Electronics"}
                     </span>
-
-                    <button
-                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 
-                                 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
-                    >
-                      <ShoppingCart size={18} />
-                      Add
-                    </button>
                   </div>
+
+                  {/* DETAILS */}
+                  <div className="p-6 pb-20">
+                    <h3 className="text-lg font-extrabold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                      {product.title}
+                    </h3>
+
+                    <p className="text-sm text-gray-500 line-clamp-2 mb-4 h-10 leading-relaxed">
+                      {product.description}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                      <span className="text-xl font-extrabold text-gray-900">
+                        ₹{product.price}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* ADD TO CART BUTTON */}
+                <div className="absolute bottom-6 right-6 z-10">
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 
+                                 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md shadow-blue-600/20"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // Add to cart logic here
+                      alert("Added to cart (Demo)");
+                    }}
+                  >
+                    <ShoppingCart size={18} />
+                    Add
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {/* NO PRODUCTS */}

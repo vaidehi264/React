@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, LogOut } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut, LayoutDashboard, User } from "lucide-react";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -9,7 +9,7 @@ const Header = () => {
 
   // Load user from localStorage
   const loadUser = () => {
-    const storedUser = localStorage.getItem("authUser");
+    const storedUser = localStorage.getItem("techifyUser"); // Unified key
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     } else {
@@ -30,7 +30,7 @@ const Header = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("authUser");
+    localStorage.removeItem("techifyUser");
     localStorage.removeItem("authToken");
 
     window.dispatchEvent(new Event("authChanged"));
@@ -93,12 +93,28 @@ const Header = () => {
                 >
                   <div className="px-4 py-3 border-b">
                     <p className="text-sm font-semibold text-gray-800">
-                      {user.name || "User"}
+                      Hi, {user.name || "User"}!
                     </p>
                     <p className="text-xs text-gray-500 truncate">
                       {user.email}
                     </p>
                   </div>
+
+                  <Link
+                    to="/profile"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <User size={16} />
+                    Manage Profile
+                  </Link>
+
+                  <Link
+                    to="/admin/dashboard"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-red-600 font-semibold"
+                  >
+                    <LayoutDashboard size={16} />
+                    Admin Dashboard (Test)
+                  </Link>
 
                   <button
                     onClick={handleLogout}

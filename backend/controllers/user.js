@@ -42,7 +42,7 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
       otp,
       otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
-      isVerify: True,
+      isVerify: true,
     });
 
     // Send OTP via email
@@ -96,6 +96,7 @@ export const verifyOtp = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -110,6 +111,7 @@ export const verifyOtp = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Login attempt for:", email);
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -122,6 +124,7 @@ export const loginUser = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log("Password mismatch for:", email);
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
@@ -134,6 +137,7 @@ export const loginUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
