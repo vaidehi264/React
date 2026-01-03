@@ -3,11 +3,17 @@ import { ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion"; // Added import
 import { getAllProducts } from "../services/productServices";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../Store/cartSlice";
+import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -43,6 +49,7 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster position="top-center" />
       {/* HERO */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 py-20 text-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
@@ -104,6 +111,12 @@ const Products = () => {
                     <span className="absolute top-4 left-4 bg-blue-600/90 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold shadow-sm">
                       {product.genre || "Electronics"}
                     </span>
+
+                    {product.isBooked && (
+                      <span className="absolute top-4 right-4 bg-orange-500 text-white text-[10px] px-3 py-1 rounded-full uppercase tracking-widest font-black shadow-lg shadow-orange-600/30 z-20">
+                        Featured
+                      </span>
+                    )}
                   </div>
 
                   {/* DETAILS */}
@@ -128,12 +141,25 @@ const Products = () => {
                 <div className="absolute bottom-6 right-6 z-10">
                   <motion.button
                     whileTap={{ scale: 0.9 }}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700
                                  text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md shadow-blue-600/20"
                     onClick={(e) => {
                       e.preventDefault();
-                      // Add to cart logic here
-                      alert("Added to cart (Demo)");
+                      const user = localStorage.getItem("techifyUser");
+                      if (!user) {
+                        toast.error("Please login to add products to cart");
+                        navigate("/login");
+                        return;
+                      }
+                      dispatch(
+                        addToCart({
+                          id: product._id,
+                          name: product.title,
+                          price: product.price,
+                          image: product.image,
+                        })
+                      );
+                      toast.success(`${product.title} added to cart!`);
                     }}
                   >
                     <ShoppingCart size={18} />

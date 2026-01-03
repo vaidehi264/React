@@ -42,7 +42,7 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
       otp,
       otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
-      isVerify: true,
+      isVerify: false, // Must be false so they can verify via OTP
     });
 
     // Send OTP via email
@@ -124,8 +124,8 @@ export const loginUser = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.log("Password mismatch for:", email);
-      return res.status(400).json({ message: "Invalid credentials" });
+      console.warn("Invalid password for user:", email);
+      return res.status(400).json({ message: "Invalid credentials. Please check your password." });
     }
 
     const token = generateToken(user);

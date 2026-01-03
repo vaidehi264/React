@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination } from "swiper/modules"
+import { useDispatch } from "react-redux"
+import { addToCart } from '../Store/cartSlice.js'
+
 import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
 import { getSingleProduct } from "../services/productServices"
+import toast, { Toaster } from "react-hot-toast"
 
 const ProductDetails = () => {
     const { id } = useParams()
@@ -14,6 +18,8 @@ const ProductDetails = () => {
     const [product, setProduct] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -29,6 +35,26 @@ const ProductDetails = () => {
         };
         fetchProduct();
     }, [id]);
+
+    const handleAddToCart = () => {
+        const user = localStorage.getItem("techifyUser");
+        if (!user) {
+            toast.error("Please login to add products to cart");
+            navigate("/login");
+            return;
+        }
+
+        dispatch(
+            addToCart({
+                id: product._id,
+                name: product.title,
+                price: product.price,
+                image: product.image,
+            })
+        );
+
+        toast.success("Product added to cart successfully");
+    };
 
     const handleQuantityChange = (type) => {
         if (type === 'plus') setQuantity(prev => prev + 1)
@@ -51,9 +77,10 @@ const ProductDetails = () => {
     ];
 
     return (
-        <div className="bg-gray-50 min-h-screen py-10">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <Link to="/products" className="text-gray-500 hover:text-blue-600 mb-8 inline-block transition-colors">
+        <div className="bg-gray-50 min-h-screen py-10 px-4">
+            <Toaster position="top-center" reverseOrder={false} />
+            <div className="max-w-7xl mx-auto">
+                <Link to="/products" className="text-gray-500 hover:text-blue-600 mb-8 inline-block transition-colors font-medium">
                     &larr; Back to Products
                 </Link>
 
@@ -115,6 +142,25 @@ const ProductDetails = () => {
                             {product.description}
                         </p>
 
+                        {product.isBooked && (
+                            <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl mb-8 flex flex-col gap-2">
+                                <div className="flex items-center gap-3">
+                                    <span className="bg-orange-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full">
+                                        Verified Item
+                                    </span>
+                                    <p className="text-orange-600 size-sm font-bold italic">
+                                        This premium product is verified and available for purchase.
+                                    </p>
+                                </div>
+                                {JSON.parse(localStorage.getItem("techifyUser"))?.role === 'admin' && product.bookedBy && (
+                                    <div className="mt-2 pt-2 border-t border-orange-100">
+                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">Previous Booker (Admin View):</p>
+                                        <p className="text-sm font-black text-gray-900">{product.bookedBy.name} ({product.bookedBy.email})</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="border-t border-b border-gray-200 py-6 mb-8">
                             <div className="mb-6">
                                 <h3 className="text-sm font-medium text-gray-900 mb-3">Key Features</h3>
@@ -151,12 +197,21 @@ const ProductDetails = () => {
                                 </button>
                             </div>
                             <motion.button
+                                onClick={handleAddToCart}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="flex-1 bg-blue-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:bg-blue-700 transition-colors text-lg"
+                                className="flex-1 btn-primary text-lg"
                             >
                                 Add to Cart - ₹{(product.price * quantity).toFixed(2)}
                             </motion.button>
+                        </div>
+                        <div className="flex gap-4 mb-4">
+                            <button onClick={() => navigate('/cart')} className="flex-1 btn-secondary text-center">
+                                View Cart
+                            </button>
+                            <button onClick={() => navigate('/checkout')} className="flex-1 btn-secondary text-center border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                                Buy Now
+                            </button>
                         </div>
 
                         <p className="text-xs text-gray-500 text-center sm:text-left">

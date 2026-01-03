@@ -1,8 +1,8 @@
 {
-    "title": "Wireless Headphones",
-    "image": "https://example.com/images/headphones.jpg",
-    "price": 2499,
-    "description": "High-quality wireless headphones with noise cancellation and long battery life.",
+    "title": "Smart Fitness Watch",
+    "image": "https://example.com/images/fitness-watch.jpg",
+    "price": 3999,
+    "description": "Advanced smart fitness watch with heart rate monitoring, GPS tracking, sleep analysis, and waterproof design.",
     "genre": "Electronics",
-    "createdAt": "2025-12-26T08:30:00.000Z"
+    "createdAt": "2026-01-03T04:15:00.000Z"
 }

@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, LogOut, LayoutDashboard, User } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut, LayoutDashboard, User, ShoppingBag } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
+
+
+  //product count
+  const cartCount = useSelector((state) => state.cart.items.length);
+
+
 
   // Load user from localStorage
   const loadUser = () => {
@@ -64,15 +71,14 @@ const Header = () => {
           {/* RIGHT ACTIONS */}
           <div className="hidden md:flex items-center gap-4">
             {/* CART */}
-            <Link
-              to="/cart"
-              className="relative p-2 rounded-lg hover:bg-gray-100 transition"
-            >
-              <ShoppingCart className="w-6 h-6 text-gray-700" />
-              <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                2
-              </span>
-            </Link>
+            <div onClick={() => navigate("/cart")} className="relative cursor-pointer">
+              <ShoppingCart size={28} className="text-gray-700 hover:text-blue-600" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs px-2 py-[1px] rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </div>
 
             {/* AUTH */}
             {user ? (
@@ -87,43 +93,59 @@ const Header = () => {
 
                 {/* DROPDOWN */}
                 <div
-                  className="absolute right-0 mt-3 w-44 bg-white rounded-xl shadow-lg
+                  className="absolute right-0 top-full pt-2 w-48
                              opacity-0 invisible group-hover:opacity-100 group-hover:visible
-                             transition-all"
+                             transition-all duration-300 ease-in-out"
                 >
-                  <div className="px-4 py-3 border-b">
-                    <p className="text-sm font-semibold text-gray-800">
-                      Hi, {user.name || "User"}!
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {user.email}
-                    </p>
+                  <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div className="px-4 py-3 border-b bg-gray-50/50">
+                      <p className="text-sm font-semibold text-gray-800">
+                        Hi, {user.name || "User"}!
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {user.email}
+                      </p>
+                    </div>
+
+                    <div className="py-1">
+                      <Link
+                        to="/profile"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                      >
+                        <User size={16} />
+                        Manage Profile
+                      </Link>
+
+                      {user.role === 'user' && (
+                        <Link
+                          to="/my-bookings"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        >
+                          <ShoppingBag size={16} />
+                          My Bookings
+                        </Link>
+                      )}
+
+                      {user.role === 'admin' && (
+                        <Link
+                          to="/admin/dashboard"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 font-semibold transition-colors"
+                        >
+                          <LayoutDashboard size={16} />
+                          Admin Dashboard
+                        </Link>
+                      )}
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-4 py-2
+                                 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut size={16} />
+                        Logout
+                      </button>
+                    </div>
                   </div>
-
-                  <Link
-                    to="/profile"
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <User size={16} />
-                    Manage Profile
-                  </Link>
-
-                  <Link
-                    to="/admin/dashboard"
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 text-red-600 font-semibold"
-                  >
-                    <LayoutDashboard size={16} />
-                    Admin Dashboard (Test)
-                  </Link>
-
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-4 py-2
-                               text-sm text-red-600 hover:bg-gray-50 rounded-b-xl"
-                  >
-                    <LogOut size={16} />
-                    Logout
-                  </button>
                 </div>
               </div>
             ) : (
@@ -154,6 +176,8 @@ const Header = () => {
             <Link onClick={() => setIsOpen(false)} to="/products">Products</Link>
             <Link onClick={() => setIsOpen(false)} to="/about">About</Link>
             <Link onClick={() => setIsOpen(false)} to="/contact">Contact</Link>
+            {user && user.role === 'user' && <Link onClick={() => setIsOpen(false)} to="/my-bookings">My Bookings</Link>}
+            {user && user.role === 'admin' && <Link onClick={() => setIsOpen(false)} to="/admin/dashboard">Admin Dashboard</Link>}
 
             {user ? (
               <button

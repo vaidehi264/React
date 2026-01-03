@@ -9,9 +9,9 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find()
+        const products = await Product.find().populate('bookedBy', 'name email')
 
-        res.status(201).json(products);
+        res.status(200).json(products);
     }
     catch (error) {
         console.error(error);
@@ -22,7 +22,7 @@ export const getAllProducts = async (req, res) => {
 export const getSingleProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await Product.findById(id)
+        const product = await Product.findById(id).populate('bookedBy', 'name email')
 
         if (!product) {
             res.status(404).json({ message: "Product not Found !!" });
@@ -57,5 +57,28 @@ export const deleteProduct = async (req, res) => {
         res.status(200).json({ message: 'Product deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting product', error: error.message });
+    }
+};
+
+export const getProductCount = async (req, res) => {
+    try {
+        const count = await Product.countDocuments();
+        res.status(200).json({ success: true, count });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "unable to fetch productcount", error });
+    }
+};
+
+export const bulkCreateProducts = async (req, res) => {
+    try {
+        const products = req.body;
+        if (!Array.isArray(products)) {
+            const createdProduct = await Product.create(products);
+            return res.status(201).json([createdProduct]);
+        }
+        const createdProducts = await Product.insertMany(products);
+        res.status(201).json(createdProducts);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to bulk create products", error: error.message });
     }
 };

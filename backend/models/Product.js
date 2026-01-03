@@ -20,9 +20,17 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
-    genre : {
+    genre: {
         type: String,
         required: true
+    },
+    isBooked: {
+        type: Boolean,
+        default: false
+    },
+    bookedBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     },
     createdAt: {
         type: Date,

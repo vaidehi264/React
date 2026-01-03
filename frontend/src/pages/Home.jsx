@@ -95,14 +95,14 @@ const Home = () => {
                 <div className="flex gap-5 flex-wrap">
                   <Link
                     to="/products"
-                    className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl text-lg font-semibold shadow-lg transition"
+                    className="btn-primary"
                   >
                     Shop Now
                   </Link>
 
                   <Link
                     to="/about"
-                    className="border border-white/70 hover:bg-white/10 px-8 py-4 rounded-xl text-lg font-semibold transition"
+                    className="backdrop-blur-sm bg-white/20 hover:bg-white/30 border border-white/50 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg"
                   >
                     Learn More
                   </Link>
@@ -201,7 +201,7 @@ const Home = () => {
         </p>
         <Link
           to="/products"
-          className="inline-block bg-blue-600 hover:bg-blue-700 px-10 py-4 rounded-xl text-lg font-semibold transition"
+          className="btn-primary inline-block text-lg"
         >
           Explore Products
         </Link>
